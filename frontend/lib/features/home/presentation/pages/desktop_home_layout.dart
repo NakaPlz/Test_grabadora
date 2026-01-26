@@ -10,6 +10,7 @@ import '../../../../features/settings/presentation/widgets/settings_panel.dart';
 import '../../../../domain/entities/collection.dart';
 import '../../../../core/services/settings_service.dart';
 import '../../../../features/recordings/presentation/pages/mobile_recording_sheet.dart';
+import '../../../../core/constants/api_constants.dart';
 
 class DesktopHomeLayout extends StatefulWidget {
   final List<Recording> recordings;
@@ -151,7 +152,7 @@ class _DesktopHomeLayoutState extends State<DesktopHomeLayout> {
       // Handle localhost for emulator/desktop if needed
       if (!url.startsWith("http")) {
          // Assuming standard backend port
-         url = "http://127.0.0.1:8001/$url";
+         url = "${ApiConstants.baseUrl}/$url";
          url = url.replaceAll('\\', '/');
       }
       

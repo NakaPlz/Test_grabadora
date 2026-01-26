@@ -24,6 +24,8 @@ import '../widgets/app_sidebar.dart';
 import '../../../../core/services/settings_service.dart';
 import '../../../settings/presentation/widgets/settings_panel.dart';
 
+import '../../../../core/constants/api_constants.dart';
+
 class HomePage extends StatefulWidget {
   final SettingsService? settingsService;
   
@@ -54,6 +56,7 @@ class _HomePageState extends State<HomePage> {
   double _playbackSpeed = 1.0;
 
   // Audio Control Methods
+
   Future<void> _playRecording(Recording recording) async {
     try {
       if (_currentRecording?.id != recording.id) {
@@ -67,7 +70,7 @@ class _HomePageState extends State<HomePage> {
 
         String url = recording.remoteUrl ?? "";
         if (!url.startsWith("http")) {
-           url = "http://127.0.0.1:8001/$url";
+           url = "${ApiConstants.baseUrl}/$url";
            url = url.replaceAll('\\', '/');
         }
         await _audioPlayer.play(UrlSource(url));

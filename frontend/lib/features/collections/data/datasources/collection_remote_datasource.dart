@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../data/models/collection_model.dart';
-import '../../../../domain/entities/collection.dart'; // To follow return type convention, though usually returns Models
+import '../../../../domain/entities/collection.dart'; 
+import '../../../../core/constants/api_constants.dart';
 
 class CollectionRemoteDataSource {
-  final String baseUrl = 'http://127.0.0.1:8001';
+  String get baseUrl => ApiConstants.baseUrl;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   CollectionRemoteDataSource();

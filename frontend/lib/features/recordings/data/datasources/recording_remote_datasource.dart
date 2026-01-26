@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../data/models/recording_model.dart';
+import '../../../../core/constants/api_constants.dart';
 
 class AuthException implements Exception {
   final String message;
@@ -11,7 +12,7 @@ class AuthException implements Exception {
 }
 
 class RecordingRemoteDataSource {
-  static const String baseUrl = 'http://127.0.0.1:8001'; // Port 8001
+  String get baseUrl => ApiConstants.baseUrl;
   final http.Client client;
   final FlutterSecureStorage storage;
 

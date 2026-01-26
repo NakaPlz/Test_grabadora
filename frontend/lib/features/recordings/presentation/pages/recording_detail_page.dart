@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../data/repositories/recording_repository_impl.dart';
 import '../../data/datasources/recording_remote_datasource.dart';
 import '../../../../domain/repositories/recording_repository.dart';
+import '../../../../core/constants/api_constants.dart';
 
 import 'package:webview_windows/webview_windows.dart';
 import '../widgets/processing_status_card.dart';
@@ -279,7 +280,7 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
     } else {
       String url = _recording.remoteUrl ?? "";
       if (!url.startsWith("http")) {
-         url = "http://127.0.0.1:8001/$url";
+         url = "${ApiConstants.baseUrl}/$url";
          url = url.replaceAll('\\', '/');
       }
       

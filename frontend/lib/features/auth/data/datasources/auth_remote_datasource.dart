@@ -3,10 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../domain/entities/user.dart';
 
+import '../../../../core/constants/api_constants.dart';
+
 class AuthRemoteDataSource {
-  // Use 127.0.0.1 for Windows/iOS simulator, 10.0.2.2 for Android Emulator
-  // Since we target Windows Desktop:
-  static const String baseUrl = 'http://127.0.0.1:8001';
+  String get baseUrl => ApiConstants.baseUrl;
   
   final http.Client client;
   final FlutterSecureStorage storage;
