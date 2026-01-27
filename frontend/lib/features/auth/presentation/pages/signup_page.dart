@@ -49,13 +49,10 @@ class _SignupPageState extends State<SignupPage> {
       
       if (mounted) {
         setState(() {
-          _successMessage = "Cuenta creada con éxito. Por favor inicia sesión.";
+          _successMessage = "¡Cuenta creada! 📧\nRevisa tu correo para verificar tu cuenta antes de iniciar sesión.";
           _isLoading = false;
         });
-        // Optional: Navigate back to login automatically after a delay
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) Navigator.pop(context);
-        });
+        // We do not auto-pop so the user can see the important message
       }
     } catch (e) {
       setState(() {
