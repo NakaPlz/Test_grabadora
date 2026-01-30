@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import '../../../../domain/entities/recording.dart';
 import '../../../../domain/repositories/recording_repository.dart';
 import '../../../../features/recordings/presentation/pages/recording_detail_page.dart';
 import '../widgets/mobile_recording_card.dart';
+import '../../../../core/services/toast_service.dart';
 
 class MobileTrashPage extends StatefulWidget {
   final RecordingRepository recordingRepository;
@@ -27,7 +27,8 @@ class _MobileTrashPageState extends State<MobileTrashPage> {
   Future<void> _fetchTrash() async {
     setState(() => _isLoading = true);
     try {
-      final recordings = await widget.recordingRepository.getRecordings(isDeleted: true);
+      final recordings =
+          await widget.recordingRepository.getRecordings(isDeleted: true);
       setState(() {
         _trashRecordings = recordings;
         _isLoading = false;
@@ -35,7 +36,7 @@ class _MobileTrashPageState extends State<MobileTrashPage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ToastService.showError(context, "Error: $e");
       }
     }
   }
@@ -45,11 +46,11 @@ class _MobileTrashPageState extends State<MobileTrashPage> {
       await widget.recordingRepository.restoreRecording(recording.id);
       _fetchTrash();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Grabación restaurada")));
+        ToastService.showSuccess(context, "Grabación restaurada");
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ToastService.showError(context, "Error: $e");
       }
     }
   }
@@ -61,19 +62,24 @@ class _MobileTrashPageState extends State<MobileTrashPage> {
         title: const Text("¿Eliminar definitivamente?"),
         content: const Text("No podrás recuperar esta grabación."),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancelar")),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("Eliminar")),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text("Cancelar")),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text("Eliminar")),
         ],
       ),
     );
 
     if (confirm == true) {
       try {
-        await widget.recordingRepository.deleteRecordingPermanently(recording.id);
+        await widget.recordingRepository
+            .deleteRecordingPermanently(recording.id);
         _fetchTrash();
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+          ToastService.showError(context, "Error: $e");
         }
       }
     }
@@ -85,7 +91,7 @@ class _MobileTrashPageState extends State<MobileTrashPage> {
       appBar: AppBar(
         title: const Text("Papelera"),
         actions: [
-            IconButton(onPressed: _fetchTrash, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _fetchTrash, icon: const Icon(Icons.refresh))
         ],
       ),
       body: _isLoading
@@ -95,9 +101,11 @@ class _MobileTrashPageState extends State<MobileTrashPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.delete_outline, size: 64, color: Colors.grey[400]),
+                      Icon(Icons.delete_outline,
+                          size: 64, color: Colors.grey[400]),
                       const SizedBox(height: 16),
-                      Text("La papelera está vacía", style: TextStyle(color: Colors.grey[500])),
+                      Text("La papelera está vacía",
+                          style: TextStyle(color: Colors.grey[500])),
                     ],
                   ),
                 )
@@ -108,29 +116,35 @@ class _MobileTrashPageState extends State<MobileTrashPage> {
                     final recording = _trashRecordings[index];
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
                       color: Theme.of(context).cardColor,
                       child: ListTile(
-                        leading: const Icon(Icons.audio_file, color: Colors.grey),
+                        leading:
+                            const Icon(Icons.audio_file, color: Colors.grey),
                         title: Text(
-                            recording.localPath.split('\\').last.split('/').last,
-                            maxLines: 1, overflow: TextOverflow.ellipsis,
+                          recording.localPath.split('\\').last.split('/').last,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: Text(recording.createdAt.toString().split('.')[0]),
+                        subtitle:
+                            Text(recording.createdAt.toString().split('.')[0]),
                         trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                                IconButton(
-                                    icon: const Icon(Icons.restore, color: Colors.green),
-                                    onPressed: () => _restore(recording),
-                                    tooltip: "Restaurar",
-                                ),
-                                IconButton(
-                                    icon: const Icon(Icons.delete_forever, color: Colors.red),
-                                    onPressed: () => _deletePermanently(recording),
-                                    tooltip: "Eliminar definitivamente",
-                                ),
-                            ],
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.restore,
+                                  color: Colors.green),
+                              onPressed: () => _restore(recording),
+                              tooltip: "Restaurar",
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_forever,
+                                  color: Colors.red),
+                              onPressed: () => _deletePermanently(recording),
+                              tooltip: "Eliminar definitivamente",
+                            ),
+                          ],
                         ),
                       ),
                     );

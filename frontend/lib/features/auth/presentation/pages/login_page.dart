@@ -9,10 +9,11 @@ import 'signup_page.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/settings_service.dart';
 import '../../../../core/constants/api_constants.dart';
+import '../../../../core/services/toast_service.dart';
 
 class LoginPage extends StatefulWidget {
   final SettingsService? settingsService;
-  
+
   const LoginPage({super.key, this.settingsService});
 
   @override
@@ -54,17 +55,17 @@ class _LoginPageState extends State<LoginPage> {
         _emailController.text.trim().toLowerCase(),
         _passwordController.text,
       );
-      
+
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Exitoso! 🚀')),
-        );
+        ToastService.showSuccess(context, 'Login Exitoso! 🚀');
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage(settingsService: widget.settingsService)),
+          MaterialPageRoute(
+              builder: (context) =>
+                  HomePage(settingsService: widget.settingsService)),
         );
       }
     } catch (e) {
@@ -73,16 +74,17 @@ class _LoginPageState extends State<LoginPage> {
           // Check for common error patterns
           final errorString = e.toString();
           if (errorString.contains("Failed to login")) {
-             _errorMessage = "Usuario o contraseña incorrectos.";
+            _errorMessage = "Usuario o contraseña incorrectos.";
           } else if (errorString.contains("verified")) {
-             _errorMessage = "Tu cuenta no está verificada. Revisa tu correo.";
+            _errorMessage = "Tu cuenta no está verificada. Revisa tu correo.";
           } else {
-             _errorMessage = "Error: $errorString"; // Show actual error for debugging
+            _errorMessage =
+                "Error: $errorString"; // Show actual error for debugging
           }
           _isLoading = false;
         });
       }
-    } 
+    }
   }
 
   @override
@@ -99,7 +101,8 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.lock_person, size: 80, color: Colors.deepPurple),
+                  const Icon(Icons.lock_person,
+                      size: 80, color: Colors.deepPurple),
                   const SizedBox(height: 24),
                   const Text(
                     'Bienvenido',
@@ -137,8 +140,9 @@ class _LoginPageState extends State<LoginPage> {
                       prefixIcon: Icon(Icons.lock),
                     ),
                     obscureText: true,
-                    validator: (value) =>
-                        value!.isEmpty ? 'Por favor ingresa tu contraseña' : null,
+                    validator: (value) => value!.isEmpty
+                        ? 'Por favor ingresa tu contraseña'
+                        : null,
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
@@ -150,14 +154,16 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('INICIAR SESIÓN', style: TextStyle(fontSize: 16)),
+                        : const Text('INICIAR SESIÓN',
+                            style: TextStyle(fontSize: 16)),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SignupPage()),
+                        MaterialPageRoute(
+                            builder: (context) => const SignupPage()),
                       );
                     },
                     child: const Text('¿No tienes cuenta? Regístrate'),
@@ -166,7 +172,8 @@ class _LoginPageState extends State<LoginPage> {
                   SelectableText(
                     "Debug Info:\nMode: ${kReleaseMode ? 'Release' : 'Debug'}\nAPI: ${ApiConstants.baseUrl}",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey.withOpacity(0.5), fontSize: 10),
+                    style: TextStyle(
+                        color: Colors.grey.withOpacity(0.5), fontSize: 10),
                   ),
                 ],
               ),
