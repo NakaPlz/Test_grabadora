@@ -185,23 +185,12 @@ def process_transcription(file_path: str, rec_id: str):
 
     try:
         from core.transcription import transcribe_audio
-        from core.analysis import analyze_transcript # Import analysis service
-        import json
         
         # 1. Transcribe
         text = transcribe_audio(file_path)
         print(f"[BACKGROUND] Transcription result length: {len(text)}")
         
-        # 2. Analyze (Summary + Tasks + Mind Map)
-        analysis_result = analyze_transcript(text)
-        summary_text = analysis_result.get("summary", "")
-        tasks_list = analysis_result.get("tasks", [])
-        mind_map_code = analysis_result.get("mind_map", "")
-        tasks_json_str = json.dumps(tasks_list)
-        
-        print(f"[BACKGROUND] Analysis complete. Summary len: {len(summary_text)}, Tasks: {len(tasks_list)}, MindMap len: {len(mind_map_code)}")
-        
-        # 3. Update DB
+        # 2. Update DB
         from database import SessionLocal
         db = SessionLocal()
         try:
@@ -210,10 +199,7 @@ def process_transcription(file_path: str, rec_id: str):
                 rec_id, 
                 schemas_recording.RecordingUpdate(
                     status=schemas_recording.RecordingStatus.completed,
-                    transcript=text,
-                    summary=summary_text,
-                    tasks_json=tasks_json_str,
-                    mind_map_code=mind_map_code
+                    transcript=text
                 )
              )
              print(f"[BACKGROUND] Database updated for {rec_id}")
@@ -224,3 +210,81 @@ def process_transcription(file_path: str, rec_id: str):
             
     except Exception as e:
         print(f"[BACKGROUND] CRITICAL ERROR during transcription process: {e}")
+
+@router.post("/{recording_id}/generate-summary", response_model=schemas_recording.Recording)
+async def endpoint_generate_summary(
+    recording_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    recording = crud_recording.get_recording(db, recording_id=recording_id)
+    if not recording or recording.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Recording not found")
+        
+    if not recording.transcript:
+        raise HTTPException(status_code=400, detail="Cannot generate summary. Transcript is empty.")
+
+    from core.analysis import generate_summary
+    import asyncio
+    
+    # Run synchronous IO-bound function in threadpool
+    summary_text = await asyncio.to_thread(generate_summary, recording.transcript)
+    
+    updated = crud_recording.update_recording(
+        db, 
+        recording_id, 
+        schemas_recording.RecordingUpdate(summary=summary_text)
+    )
+    return updated
+
+@router.post("/{recording_id}/generate-tasks", response_model=schemas_recording.Recording)
+async def endpoint_generate_tasks(
+    recording_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    recording = crud_recording.get_recording(db, recording_id=recording_id)
+    if not recording or recording.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Recording not found")
+        
+    if not recording.transcript:
+        raise HTTPException(status_code=400, detail="Cannot generate tasks. Transcript is empty.")
+
+    from core.analysis import generate_tasks
+    import asyncio
+    import json
+    
+    tasks_list = await asyncio.to_thread(generate_tasks, recording.transcript)
+    tasks_json_str = json.dumps(tasks_list)
+    
+    updated = crud_recording.update_recording(
+        db, 
+        recording_id, 
+        schemas_recording.RecordingUpdate(tasks_json=tasks_json_str)
+    )
+    return updated
+
+@router.post("/{recording_id}/generate-mindmap", response_model=schemas_recording.Recording)
+async def endpoint_generate_mindmap(
+    recording_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    recording = crud_recording.get_recording(db, recording_id=recording_id)
+    if not recording or recording.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Recording not found")
+        
+    if not recording.transcript:
+        raise HTTPException(status_code=400, detail="Cannot generate mind map. Transcript is empty.")
+
+    from core.analysis import generate_mind_map
+    import asyncio
+    
+    mindmap_str = await asyncio.to_thread(generate_mind_map, recording.transcript)
+    
+    updated = crud_recording.update_recording(
+        db, 
+        recording_id, 
+        schemas_recording.RecordingUpdate(mind_map_code=mindmap_str)
+    )
+    return updated

@@ -99,6 +99,42 @@ class RecordingRemoteDataSource {
     _handleResponse(response, 'Failed to start transcription');
   }
 
+  Future<void> generateSummary(String recordingId) async {
+    final token = await storage.read(key: 'auth_token');
+    final response = await client.post(
+      Uri.parse('$baseUrl/recordings/$recordingId/generate-summary'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    _handleResponse(response, 'Failed to generate summary');
+  }
+
+  Future<void> generateTasks(String recordingId) async {
+    final token = await storage.read(key: 'auth_token');
+    final response = await client.post(
+      Uri.parse('$baseUrl/recordings/$recordingId/generate-tasks'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    _handleResponse(response, 'Failed to generate tasks');
+  }
+
+  Future<void> generateMindMap(String recordingId) async {
+    final token = await storage.read(key: 'auth_token');
+    final response = await client.post(
+      Uri.parse('$baseUrl/recordings/$recordingId/generate-mindmap'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    _handleResponse(response, 'Failed to generate mind map');
+  }
+
   Future<void> deleteRecording(String id) async {
     final token = await storage.read(key: 'auth_token');
     final response = await client.delete(

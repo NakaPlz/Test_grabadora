@@ -35,6 +35,21 @@ class RecordingRepositoryImpl implements RecordingRepository {
   }
 
   @override
+  Future<void> generateSummary(String id) async {
+    await remoteDataSource.generateSummary(id);
+  }
+
+  @override
+  Future<void> generateTasks(String id) async {
+    await remoteDataSource.generateTasks(id);
+  }
+
+  @override
+  Future<void> generateMindMap(String id) async {
+    await remoteDataSource.generateMindMap(id);
+  }
+
+  @override
   Future<void> toggleFavorite(String id, bool isFavorite) async {
     await remoteDataSource.updateRecording(id, {'is_favorite': isFavorite});
   }

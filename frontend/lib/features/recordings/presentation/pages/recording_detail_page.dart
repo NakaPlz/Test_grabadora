@@ -71,6 +71,10 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
   double _playbackSpeed = 1.0;
   bool _isAudioLoading = false;
 
+  bool _isGeneratingSummary = false;
+  bool _isGeneratingTasks = false;
+  bool _isGeneratingMindMap = false;
+
   @override
   void initState() {
     super.initState();
@@ -206,6 +210,45 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
       ToastService.showInfo(context, "Transcripción iniciada...");
     } catch (e) {
       ToastService.showError(context, "Error iniciando transcripción: $e");
+    }
+  }
+
+  Future<void> _generateSummary() async {
+    setState(() => _isGeneratingSummary = true);
+    try {
+      await _repository.generateSummary(_recording.id);
+      await _refreshRecording();
+      if (mounted) ToastService.showSuccess(context, "Resumen generado");
+    } catch (e) {
+      if (mounted) ToastService.showError(context, "Error al generar resumen: $e");
+    } finally {
+      if (mounted) setState(() => _isGeneratingSummary = false);
+    }
+  }
+
+  Future<void> _generateTasks() async {
+    setState(() => _isGeneratingTasks = true);
+    try {
+      await _repository.generateTasks(_recording.id);
+      await _refreshRecording();
+      if (mounted) ToastService.showSuccess(context, "Tareas generadas");
+    } catch (e) {
+      if (mounted) ToastService.showError(context, "Error al generar tareas: $e");
+    } finally {
+      if (mounted) setState(() => _isGeneratingTasks = false);
+    }
+  }
+
+  Future<void> _generateMindMap() async {
+    setState(() => _isGeneratingMindMap = true);
+    try {
+      await _repository.generateMindMap(_recording.id);
+      await _refreshRecording();
+      if (mounted) ToastService.showSuccess(context, "Mapa mental generado");
+    } catch (e) {
+      if (mounted) ToastService.showError(context, "Error al generar mapa mental: $e");
+    } finally {
+      if (mounted) setState(() => _isGeneratingMindMap = false);
     }
   }
 
@@ -632,34 +675,88 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
   }
 
   Widget _buildSummaryTab() {
+    if (_recording.status != RecordingStatus.completed) {
+      return const Center(
+          child: Text(
+              "El resumen se podrá generar al finalizar la transcripción.",
+              style: TextStyle(color: Colors.grey)));
+    }
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Resumen Ejecutivo",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Resumen Ejecutivo",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              if (_recording.summary.isEmpty)
+                ElevatedButton.icon(
+                  onPressed: _isGeneratingSummary ? null : _generateSummary,
+                  icon: _isGeneratingSummary
+                      ? const SizedBox(
+                          width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.auto_awesome),
+                  label: Text(_isGeneratingSummary ? "Generando..." : "Generar Resumen"),
+                ),
+            ],
           ),
           const SizedBox(height: 16),
-          Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                _recording.summary.isNotEmpty
-                    ? _recording.summary
-                    : "El resumen aún no está disponible.",
-                style: const TextStyle(fontSize: 16, height: 1.5),
+          if (_recording.summary.isNotEmpty)
+            Card(
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _recording.summary,
+                  style: const TextStyle(fontSize: 16, height: 1.5),
+                ),
+              ),
+            )
+          else if (!_isGeneratingSummary)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Text("El resumen aún no ha sido generado.", style: TextStyle(color: Colors.grey)),
               ),
             ),
-          ),
         ],
       ),
     );
   }
 
   Widget _buildTasksTab() {
+    if (_recording.status != RecordingStatus.completed) {
+      return const Center(
+          child: Text(
+              "Las tareas se podrán generar al finalizar la transcripción.",
+              style: TextStyle(color: Colors.grey)));
+    }
+
+    if (_recording.tasks.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("Las tareas aún no han sido generadas.", style: TextStyle(color: Colors.grey)),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _isGeneratingTasks ? null : _generateTasks,
+              icon: _isGeneratingTasks
+                  ? const SizedBox(
+                      width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.auto_awesome),
+              label: Text(_isGeneratingTasks ? "Generando..." : "Generar Tareas"),
+            )
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       itemCount: _recording.tasks.length + 1,
@@ -691,13 +788,27 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
     if (_recording.status != RecordingStatus.completed) {
       return const Center(
           child: Text(
-              "El mapa mental se generará al finalizar la transcripción.",
+              "El mapa mental se podrá generar al finalizar la transcripción.",
               style: TextStyle(color: Colors.grey)));
     }
     if (_recording.mindMapCode.isEmpty) {
-      return const Center(
-          child: Text("No se pudo generar un mapa mental para este audio.",
-              style: TextStyle(color: Colors.grey)));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("El mapa mental aún no ha sido generado.", style: TextStyle(color: Colors.grey)),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _isGeneratingMindMap ? null : _generateMindMap,
+              icon: _isGeneratingMindMap
+                  ? const SizedBox(
+                      width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.auto_awesome),
+              label: Text(_isGeneratingMindMap ? "Generando..." : "Generar Mapa Mental"),
+            )
+          ],
+        ),
+      );
     }
 
     final mermaidCode = _recording.mindMapCode;

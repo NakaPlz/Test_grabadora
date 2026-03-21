@@ -9,57 +9,80 @@ client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
 )
 
-def analyze_transcript(transcript_text: str) -> dict:
-    """
-    Analyzes the transcript to generate a summary and a list of action items.
-    Returns a dict with 'summary' (str) and 'tasks' (list of str).
-    """
+def generate_summary(transcript_text: str) -> str:
     if not transcript_text or len(transcript_text) < 10:
-        return {"summary": "No hay suficiente texto para analizar.", "tasks": []}
-
-    print("Analyzing transcript...")
+        return "No hay suficiente texto para analizar."
+    
+    print("Generating summary...")
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini", # Used mini for speed and cost
-            response_format={"type": "json_object"},
+            model="gpt-4o-mini",
             messages=[
                 {
                     "role": "system", 
-                    "content": """You are an expert secretary and project manager. 
-                    Analyze the provided transcription text.
-                    1. Create a concise "executive summary" (in Spanish).
-                    2. Extract a list of "action items" or "tasks" (in Spanish).
-                    3. Create a "mind map" using Mermaid.js syntax (graph TD or mindmap).
-                       - Keep it simple and hierarchical.
-                       - Use strictly valid Mermaid syntax.
-                       - Return the raw Mermaid code string in the "mind_map" field.
-                    
-                    Return ONLY a JSON object with this structure:
-                    {
-                        "summary": "The executive summary text...",
-                        "tasks": ["Task 1", "Task 2", ...],
-                        "mind_map": "graph TD; A[Concept] --> B[Detail]; ..."
-                    }
-                    """
+                    "content": "You are an expert secretary. Create a concise executive summary in Spanish for the provided transcription text."
                 },
                 {"role": "user", "content": transcript_text}
             ]
         )
-        
-        content = response.choices[0].message.content
-        result = json.loads(content)
-        
-        # Ensure keys exist
-        if "summary" not in result:
-            result["summary"] = "Resumen no generado."
-        if "tasks" not in result:
-            result["tasks"] = []
-        if "mind_map" not in result:
-            result["mind_map"] = ""
-            
-        print("Analysis complete.")
-        return result
-
+        return response.choices[0].message.content or "Resumen no generado."
     except Exception as e:
-        print(f"Error during analysis: {e}")
-        return {"summary": "Error al generar resumen.", "tasks": []}
+        print(f"Error during summary generation: {e}")
+        return "Error al generar resumen."
+
+def generate_tasks(transcript_text: str) -> list:
+    if not transcript_text or len(transcript_text) < 10:
+        return []
+        
+    print("Generating tasks...")
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            response_format={"type": "json_object"},
+            messages=[
+                {
+                    "role": "system", 
+                    "content": "You are a project manager. Extract a list of action items or tasks from the transcription in Spanish. Return ONLY a JSON object with this structure: {\"tasks\": [\"Task 1\", \"Task 2\"]}"
+                },
+                {"role": "user", "content": transcript_text}
+            ]
+        )
+        content = response.choices[0].message.content
+        if content:
+             result = json.loads(content)
+             return result.get("tasks", [])
+        return []
+    except Exception as e:
+        print(f"Error during tasks generation: {e}")
+        return []
+
+def generate_mind_map(transcript_text: str) -> str:
+    if not transcript_text or len(transcript_text) < 10:
+        return ""
+        
+    print("Generating mind map...")
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system", 
+                    "content": "You are an expert analyst. Create a mind map using valid Mermaid.js syntax (graph TD or mindmap) based on the transcription text. Return ONLY the raw Mermaid code string without Markdown code blocks (` ``` `) or any other explanation."
+                },
+                {"role": "user", "content": transcript_text}
+            ]
+        )
+        content = response.choices[0].message.content
+        if not content:
+            return ""
+        
+        # Strip markdown format if present
+        content = content.strip()
+        if content.startswith("```"):
+             lines = content.split("\n")
+             if len(lines) > 2:
+                 content = "\n".join(lines[1:-1])
+        return content.strip()
+    except Exception as e:
+        print(f"Error during mind map generation: {e}")
+        return ""

@@ -6,6 +6,9 @@ abstract class RecordingRepository {
   Future<Recording> saveRecording(Recording recording);
   Future<void> uploadRecordingFile(String id, String path);
   Future<void> transcribeRecording(String id);
+  Future<void> generateSummary(String id);
+  Future<void> generateTasks(String id);
+  Future<void> generateMindMap(String id);
   Future<void> toggleFavorite(String id, bool isFavorite);
   Future<void> deleteRecording(String id);
   Future<void> restoreRecording(String id);
