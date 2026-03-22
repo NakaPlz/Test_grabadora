@@ -15,6 +15,7 @@ class Recording(Base):
 
     id = Column(String, primary_key=True, index=True) # UUID
     user_id = Column(Integer, ForeignKey("users.id"))
+    title = Column(String, default="Nueva Grabación")
     local_path = Column(String)
     remote_url = Column(String, nullable=True)
     status = Column(Enum(RecordingStatus))

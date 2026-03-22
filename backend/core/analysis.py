@@ -30,6 +30,28 @@ def generate_summary(transcript_text: str) -> str:
         print(f"Error during summary generation: {e}")
         return "Error al generar resumen."
 
+def generate_title(transcript_text: str) -> str:
+    if not transcript_text or len(transcript_text) < 10:
+        return "Nueva Grabación"
+    
+    print("Generating title...")
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system", 
+                    "content": "You are an expert editor. Create a very short, catchy title (max 5-6 words) in Spanish for the provided transcription. Return ONLY the title text."
+                },
+                {"role": "user", "content": transcript_text}
+            ]
+        )
+        title = response.choices[0].message.content or "Nueva Grabación"
+        return title.strip().replace('"', '')
+    except Exception as e:
+        print(f"Error during title generation: {e}")
+        return "Nueva Grabación"
+
 def generate_tasks(transcript_text: str) -> list:
     if not transcript_text or len(transcript_text) < 10:
         return []

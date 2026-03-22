@@ -8,9 +8,11 @@ class RecordingBase(BaseModel):
     status: RecordingStatus = RecordingStatus.pending
 
 class RecordingCreate(RecordingBase):
+    title: Optional[str] = "Nueva Grabación"
     pass
 
 class RecordingUpdate(BaseModel):
+    title: Optional[str] = None
     remote_url: Optional[str] = None
     status: Optional[RecordingStatus] = None
     transcript: Optional[str] = None
@@ -23,6 +25,7 @@ class RecordingUpdate(BaseModel):
 class Recording(RecordingBase):
     id: str
     user_id: int
+    title: str = "Nueva Grabación"
     remote_url: Optional[str] = None
     transcript: Optional[str] = None
     summary: Optional[str] = None

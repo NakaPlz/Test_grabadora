@@ -300,7 +300,7 @@ class _DesktopHomeLayoutState extends State<DesktopHomeLayout> {
             position: _position,
             onPlayPause: _playPause,
             onSeek: _seek,
-            title: _selectedRecording?.localPath.split('\\').last,
+            title: _selectedRecording?.title,
             volume: _volume,
             speed: _speed,
             onVolumeChanged: _setVolume,

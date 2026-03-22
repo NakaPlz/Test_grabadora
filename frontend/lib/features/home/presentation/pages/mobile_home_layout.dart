@@ -103,8 +103,8 @@ class _MobileHomeLayoutState extends State<MobileHomeLayout> {
         _filteredRecordings = widget.recordings;
       } else {
         _filteredRecordings = widget.recordings.where((rec) {
-          final name = rec.localPath.split('\\').last.split('/').last.toLowerCase();
-          return name.contains(query);
+          final title = rec.title.toLowerCase();
+          return title.contains(query);
         }).toList();
       }
     });
@@ -391,7 +391,7 @@ class _MobileHomeLayoutState extends State<MobileHomeLayout> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.currentRecording!.localPath.split('\\').last.split('/').last,
+                              widget.currentRecording!.title,
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                               maxLines: 1, overflow: TextOverflow.ellipsis,
                             ),

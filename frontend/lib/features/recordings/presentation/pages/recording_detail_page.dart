@@ -193,6 +193,41 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
     }
   }
 
+  Future<void> _editTitle() async {
+    final controller = TextEditingController(text: _recording.title);
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Editar Título"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: "Nombre de la grabación"),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text("Guardar"),
+          ),
+        ],
+      ),
+    );
+
+    if (newTitle != null && newTitle.isNotEmpty && newTitle != _recording.title) {
+      try {
+        await _repository.updateRecording(_recording.id, {"title": newTitle});
+        await _refreshRecording();
+        if (mounted) ToastService.showSuccess(context, "Título actualizado");
+      } catch (e) {
+        if (mounted) ToastService.showError(context, "Error al actualizar título: $e");
+      }
+    }
+  }
+
 // ... (Rest of existing methods) ...
 
   Future<void> _requestTranscription() async {
@@ -351,7 +386,17 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
       initialIndex: widget.initialTabIndex,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_recording.localPath.split('\\').last),
+          title: InkWell(
+            onTap: _editTitle,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: Text(_recording.title)),
+                const SizedBox(width: 8),
+                const Icon(Icons.edit, size: 16, color: Colors.white70),
+              ],
+            ),
+          ),
           backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
           actions: [
@@ -444,9 +489,22 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
           elevation: 0,
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
-          title: Text(
-            _recording.localPath.split('\\').last.split('/').last,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          title: InkWell(
+            onTap: _editTitle,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    _recording.title,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(Icons.edit, size: 14, color: Colors.white70),
+              ],
+            ),
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
@@ -522,8 +580,7 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
                   final isPlayingState = _isPlaying;
 
                   return MobilePlayerFooter(
-                    title:
-                        _recording.localPath.split('\\').last.split('/').last,
+                    title: _recording.title,
 
                     position: currentPos,
                     duration: currentDur,

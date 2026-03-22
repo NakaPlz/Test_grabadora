@@ -4,6 +4,7 @@ import '../../domain/entities/recording.dart';
 class RecordingModel extends Recording {
   const RecordingModel({
     required String id,
+    required String title,
     required String localPath,
     String? remoteUrl,
     required RecordingStatus status,
@@ -16,6 +17,7 @@ class RecordingModel extends Recording {
     required DateTime createdAt,
   }) : super(
           id: id,
+          title: title,
           localPath: localPath,
           remoteUrl: remoteUrl,
           status: status,
@@ -41,6 +43,7 @@ class RecordingModel extends Recording {
 
     return RecordingModel(
       id: json['id'],
+      title: json['title'] ?? 'Nueva Grabación',
       localPath: json['local_path'],
       remoteUrl: json['remote_url'],
       status: RecordingStatus.values.firstWhere(
@@ -60,6 +63,7 @@ class RecordingModel extends Recording {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'title': title,
       'localPath': localPath,
       'remoteUrl': remoteUrl,
       'status': status.toString().split('.').last,

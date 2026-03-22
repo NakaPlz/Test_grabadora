@@ -88,7 +88,7 @@ class MobileRecordingCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          recording.localPath.split('\\').last.split('/').last, // Simple name extraction
+                          recording.title, 
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,

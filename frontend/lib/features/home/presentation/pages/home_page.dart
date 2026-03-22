@@ -337,11 +337,9 @@ class _HomePageState extends State<HomePage> {
 
   // Helper because we didn't use freezed/copyWith yet
   Recording _manualCopyWith(Recording r, bool isFavorite) {
-    // Assuming RecordingModel is what we are using, but the list is List<Recording>.
-    // Entities don't usually have copyWith unless generated.
-    // I'll create a simple constructor call.
     return Recording(
       id: r.id,
+      title: r.title,
       localPath: r.localPath,
       remoteUrl: r.remoteUrl,
       status: r.status,

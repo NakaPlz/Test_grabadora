@@ -94,4 +94,9 @@ class RecordingRepositoryImpl implements RecordingRepository {
         }
     }
   }
+
+  @override
+  Future<Recording> updateRecording(String id, Map<String, dynamic> updates) {
+    return remoteDataSource.updateRecording(id, updates);
+  }
 }

@@ -2,6 +2,7 @@ enum RecordingStatus { pending, uploaded, transcribing, completed }
 
 class Recording {
   final String id;
+  final String title;
   final String localPath;
   final String? remoteUrl;
   final RecordingStatus status;
@@ -15,6 +16,7 @@ class Recording {
 
   const Recording({
     required this.id,
+    required this.title,
     required this.localPath,
     this.remoteUrl,
     required this.status,

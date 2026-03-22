@@ -25,6 +25,7 @@ class SyncService {
         // Create Recording (Metadata)
         final newRec = Recording(
           id: '', // Ignored by backend on create
+          title: file.path.split('\\').last.split('/').last,
           localPath: file.path, 
           status: RecordingStatus.pending,
           transcript: '',

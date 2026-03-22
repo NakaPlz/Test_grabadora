@@ -190,6 +190,11 @@ def process_transcription(file_path: str, rec_id: str):
         text = transcribe_audio(file_path)
         print(f"[BACKGROUND] Transcription result length: {len(text)}")
         
+        # 1.5 Generate Title
+        from core.analysis import generate_title
+        title = generate_title(text)
+        print(f"[BACKGROUND] Generated title: {title}")
+
         # 2. Update DB
         from database import SessionLocal
         db = SessionLocal()
@@ -199,7 +204,8 @@ def process_transcription(file_path: str, rec_id: str):
                 rec_id, 
                 schemas_recording.RecordingUpdate(
                     status=schemas_recording.RecordingStatus.completed,
-                    transcript=text
+                    transcript=text,
+                    title=title
                 )
              )
              print(f"[BACKGROUND] Database updated for {rec_id}")

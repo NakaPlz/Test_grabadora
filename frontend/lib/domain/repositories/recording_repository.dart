@@ -13,4 +13,5 @@ abstract class RecordingRepository {
   Future<void> deleteRecording(String id);
   Future<void> restoreRecording(String id);
   Future<void> deleteRecordingPermanently(String id);
+  Future<Recording> updateRecording(String id, Map<String, dynamic> updates);
 }
