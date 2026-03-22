@@ -123,7 +123,7 @@ class RecordingListPanel extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                recording.localPath.split('\\').last,
+                                recording.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
