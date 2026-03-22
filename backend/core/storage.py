@@ -5,15 +5,25 @@ import urllib.parse
 import urllib.error
 import socket
 
-# Force Python's getaddrinfo to ONLY use IPv4 to bypass Docker slim AAAA resolution bugs
+# Ultimate DNS Bypass for buggy Linux Docker containers:
+# Use gethostbyname directly for Supabase domains since it works, while getaddrinfo fails.
 _original_getaddrinfo = socket.getaddrinfo
 
-def _ipv4_only_getaddrinfo(host, port, family=0, *args, **kwargs):
-    if family == 0:  # AF_UNSPEC
-        family = socket.AF_INET
-    return _original_getaddrinfo(host, port, family, *args, **kwargs)
+def _patched_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+    if host and "supabase.co" in host:
+        try:
+            ip = socket.gethostbyname(host)
+            # return (family, type, proto, canonname, sockaddr)
+            _family = socket.AF_INET
+            _type = type if type != 0 else socket.SOCK_STREAM
+            _proto = proto if proto != 0 else socket.IPPROTO_TCP
+            return [(_family, _type, _proto, '', (ip, port))]
+        except Exception:
+            pass # Fall back to original
+            
+    return _original_getaddrinfo(host, port, family, type, proto, flags)
 
-socket.getaddrinfo = _ipv4_only_getaddrinfo
+socket.getaddrinfo = _patched_getaddrinfo
 
 # Initialize Supabase URL and Key
 supabase_url = os.environ.get("SUPABASE_URL", "").strip()
