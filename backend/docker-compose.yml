@@ -8,9 +8,11 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/bridge_ai_db
+      - DATABASE_URL=${DATABASE_URL:-postgresql://user:password@db:5432/bridge_ai_db}
       - SECRET_KEY=${SECRET_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
     depends_on:
       - db
     volumes:
