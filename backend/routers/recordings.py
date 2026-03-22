@@ -139,6 +139,8 @@ async def upload_audio_file(
     try:
         public_url = upload_file_to_supabase(recording_id, file)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to upload to storage: {str(e)}")
     
     # Update recording with the public URL

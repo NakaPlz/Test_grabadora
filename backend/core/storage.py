@@ -31,11 +31,10 @@ def upload_file_to_supabase(recording_id: str, file: UploadFile) -> str:
     file_bytes = file.file.read()
     
     # Upload to Supabase Storage
-    # The 'upsert' option allows overwriting if somehow a collision happens
     res = supabase.storage.from_(BUCKET_NAME).upload(
         file=file_bytes,
         path=file_name,
-        file_options={"content-type": file.content_type, "upsert": "true"}
+        file_options={"content-type": "audio/wav"}
     )
     
     # Get the public URL for the file so the frontend can play it directly

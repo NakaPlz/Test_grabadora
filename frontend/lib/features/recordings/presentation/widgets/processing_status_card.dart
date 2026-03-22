@@ -17,6 +17,7 @@ class ProcessingStatusCard extends StatelessWidget {
     final isProcessing = recording.status == RecordingStatus.transcribing;
     final isCompleted = recording.status == RecordingStatus.completed;
     final isUploaded = recording.status == RecordingStatus.uploaded;
+    final isPending = recording.status == RecordingStatus.pending;
 
     return Card(
       elevation: 0,
@@ -59,7 +60,7 @@ class ProcessingStatusCard extends StatelessWidget {
             
             const SizedBox(height: 24),
             
-            if (isUploaded)
+            if (isUploaded || isPending)
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(

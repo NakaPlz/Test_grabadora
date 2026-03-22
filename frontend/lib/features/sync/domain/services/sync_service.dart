@@ -13,7 +13,9 @@ class SyncService {
 
   Future<void> syncFolder(String folderPath) async {
     final files = await localFileDataSource.scanDirectory(folderPath);
-    final remoteRecordings = await repository.getRecordings();
+    final activeRecordings = await repository.getRecordings();
+    final deletedRecordings = await repository.getRecordings(isDeleted: true);
+    final remoteRecordings = [...activeRecordings, ...deletedRecordings];
 
     for (var file in files) {
       // Simple duplicate check by path
