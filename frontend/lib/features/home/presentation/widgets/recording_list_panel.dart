@@ -98,11 +98,19 @@ class RecordingListPanel extends StatelessWidget {
               final recording = recordings[index];
               final isSelected = selectedRecording == recording;
               
+              // Alternating Color Logic
+              final isDark = Theme.of(context).brightness == Brightness.dark;
+              final rowColor = isSelected 
+                  ? Theme.of(context).colorScheme.primary.withOpacity(0.05)
+                  : (index % 2 != 0 
+                      ? (isDark ? Colors.white.withOpacity(0.02) : Colors.black.withOpacity(0.02))
+                      : Colors.transparent);
+              
               // Date mock
               final dateStr = "Oct 25, 2023"; // TODO: Use real date
               
               return Material(
-                color: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.05) : Colors.transparent,
+                color: rowColor,
                 child: InkWell(
                   onTap: () => onRecordingSelected(recording),
                   child: Padding(

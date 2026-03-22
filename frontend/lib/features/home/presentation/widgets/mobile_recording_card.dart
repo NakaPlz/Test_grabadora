@@ -7,6 +7,7 @@ class MobileRecordingCard extends StatelessWidget {
   final VoidCallback? onTranscriptionTap;
   final VoidCallback? onSummaryTap;
   final VoidCallback onToggleFavorite;
+  final Color? backgroundColor;
 
   const MobileRecordingCard({
     super.key,
@@ -15,6 +16,7 @@ class MobileRecordingCard extends StatelessWidget {
     required this.onToggleFavorite,
     this.onTranscriptionTap,
     this.onSummaryTap,
+    this.backgroundColor,
   });
 
   @override
@@ -46,7 +48,7 @@ class MobileRecordingCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: backgroundColor ?? Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isDark ? Colors.white.withOpacity(0.05) : Colors.transparent,

@@ -312,10 +312,20 @@ class _MobileHomeLayoutState extends State<MobileHomeLayout> {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final recording = _filteredRecordings[index];
+                          
+                          // Calculate Alternating Color
+                          final isDark = Theme.of(context).brightness == Brightness.dark;
+                          final Color? altColor = index % 2 != 0 
+                            ? (isDark 
+                                ? Colors.white.withOpacity(0.04) 
+                                : Colors.black.withOpacity(0.03))
+                            : null;
+
                           return MobileRecordingCard(
                             recording: recording,
                             onTap: () => widget.onRecordingTap(recording),
                             onToggleFavorite: () => widget.onToggleFavorite(recording),
+                            backgroundColor: altColor,
                             onTranscriptionTap: () {
                                // Open detail with tab 0
                                widget.onRecordingTap(recording, initialTab: 0); 
