@@ -62,6 +62,38 @@ async def env_debug():
         "KEYS_IN_ENV": list(os.environ.keys())
     }
 
+@app.get("/test-dns")
+async def test_dns():
+    import socket
+    import urllib.request
+    import os
+    import reprlib
+
+    url_env = reprlib.repr(os.environ.get("SUPABASE_URL", ""))
+    url_stripped = reprlib.repr(os.environ.get("SUPABASE_URL", "").strip())
+    
+    # Isolate domain
+    raw = os.environ.get("SUPABASE_URL", "").strip()
+    if raw.startswith("http"):
+        domain = raw.split("://")[-1].split("/")[0]
+    else:
+        domain = raw
+
+    try:
+        ip = socket.gethostbyname(domain)
+        dns_success = True
+    except Exception as e:
+        ip = str(e)
+        dns_success = False
+
+    return {
+        "env_raw": url_env,
+        "env_stripped": url_stripped,
+        "domain_parsed": reprlib.repr(domain),
+        "resolved_ip": ip,
+        "dns_success": dns_success
+    }
+
 @app.on_event("startup")
 async def startup_event():
     print("MAPPING ROUTES:")
