@@ -67,7 +67,22 @@ def generate_mind_map(transcript_text: str) -> str:
             messages=[
                 {
                     "role": "system", 
-                    "content": "You are an expert analyst. Create a mind map using valid Mermaid.js syntax (graph TD or mindmap) based on the transcription text. Return ONLY the raw Mermaid code string without Markdown code blocks (` ``` `) or any other explanation."
+                    "content": (
+                        "You are an expert analyst. Create a mind map using STRICTLY the Mermaid.js `mindmap` syntax "
+                        "based on the transcription text. \n"
+                        "Rules:\n"
+                        "1. ALWAYS start with the exact word `mindmap`.\n"
+                        "2. Use indentation to show hierarchy (root node, then branches).\n"
+                        "3. Do NOT use `graph TD` or any other format.\n"
+                        "4. Ensure valid Mermaid mindmap syntax.\n"
+                        "5. Return ONLY the raw Mermaid code string without Markdown code blocks (` ``` `) or any other explanation.\n"
+                        "Example:\n"
+                        "mindmap\n"
+                        "  Root Idea\n"
+                        "    Subtopic 1\n"
+                        "      Detail A\n"
+                        "    Subtopic 2"
+                    )
                 },
                 {"role": "user", "content": transcript_text}
             ]
