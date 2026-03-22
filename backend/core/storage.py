@@ -3,6 +3,17 @@ import uuid
 import urllib.request
 import urllib.parse
 import urllib.error
+import socket
+
+# Force Python's getaddrinfo to ONLY use IPv4 to bypass Docker slim AAAA resolution bugs
+_original_getaddrinfo = socket.getaddrinfo
+
+def _ipv4_only_getaddrinfo(host, port, family=0, *args, **kwargs):
+    if family == 0:  # AF_UNSPEC
+        family = socket.AF_INET
+    return _original_getaddrinfo(host, port, family, *args, **kwargs)
+
+socket.getaddrinfo = _ipv4_only_getaddrinfo
 
 # Initialize Supabase URL and Key
 supabase_url = os.environ.get("SUPABASE_URL", "").strip()
