@@ -6,20 +6,22 @@ import urllib.error
 import socket
 
 # Ultimate DNS Bypass for buggy Linux Docker containers:
-# Use gethostbyname directly for Supabase domains since it works, while getaddrinfo fails.
+# Use gethostbyname directly for ALL domains since it works, while getaddrinfo fails.
 _original_getaddrinfo = socket.getaddrinfo
 
 def _patched_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
-    if host and "supabase.co" in host:
+    if host:
         try:
+            # Manually resolve using gethostbyname which is proven to work
             ip = socket.gethostbyname(host)
             # return (family, type, proto, canonname, sockaddr)
             _family = socket.AF_INET
             _type = type if type != 0 else socket.SOCK_STREAM
             _proto = proto if proto != 0 else socket.IPPROTO_TCP
             return [(_family, _type, _proto, '', (ip, port))]
-        except Exception:
-            pass # Fall back to original
+        except Exception as e:
+            print(f"Fallback DNS monkeypatch failed for {host}: {e}")
+            pass # Fall back to original getaddrinfo
             
     return _original_getaddrinfo(host, port, family, type, proto, flags)
 
