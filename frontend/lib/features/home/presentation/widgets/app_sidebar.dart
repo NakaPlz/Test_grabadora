@@ -5,6 +5,7 @@ enum SidebarSection { all, favorites, collections, trash, settings }
 class AppSidebar extends StatelessWidget {
   final VoidCallback onNewRecording;
   final VoidCallback onSync;
+  final VoidCallback onUpload;
   final VoidCallback onLogout;
   final SidebarSection currentSection;
   final ValueChanged<SidebarSection> onSectionChanged;
@@ -13,6 +14,7 @@ class AppSidebar extends StatelessWidget {
     super.key,
     required this.onNewRecording,
     required this.onSync,
+    required this.onUpload,
     required this.onLogout,
     required this.currentSection,
     required this.onSectionChanged,
@@ -127,6 +129,19 @@ class AppSidebar extends StatelessWidget {
                   onPressed: onSync,
                   icon: const Icon(Icons.sync),
                   label: const Text("Sincronizar"),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: const Size(double.infinity, 0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: onUpload,
+                  icon: const Icon(Icons.upload_file),
+                  label: const Text("Subir Audio"),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     minimumSize: const Size(double.infinity, 0),

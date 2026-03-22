@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
 import '../../../../domain/entities/recording.dart';
 import '../../../../domain/repositories/recording_repository.dart';
 import '../../../auth/presentation/pages/login_page.dart';
@@ -362,6 +363,7 @@ class _HomePageState extends State<HomePage> {
         errorMessage: _errorMessage,
         onRefresh: _fetchRecordings,
         onSync: _sync,
+        onUpload: _handleManualUpload,
         onLogout: _logout,
         onToggleFavorite: _toggleFavorite,
         collections: _collections,
@@ -511,6 +513,7 @@ class _HomePageState extends State<HomePage> {
       onToggleFavorite: _toggleFavorite,
       onDelete: _deleteRecording,
       onSync: _sync,
+      onUpload: _handleManualUpload,
       onLogout: _logout,
       onOpenTrash: () {
         Navigator.push(
@@ -608,6 +611,48 @@ class _HomePageState extends State<HomePage> {
       print("Error moving recording: $e");
       if (mounted) {
         ToastService.showError(context, "Error guardando grabación: $e");
+      }
+    }
+  }
+
+  Future<void> _handleManualUpload() async {
+    try {
+      // Pick a file
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac'],
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        String pickPath = result.files.single.path!;
+        final watchPath =
+            widget.settingsService?.watchPath ?? "C:\\Grabadora_Virtual";
+            
+        final fileName = p.basename(pickPath);
+        final destDir = Directory(watchPath);
+        if (!await destDir.exists()) {
+          await destDir.create(recursive: true);
+        }
+        final destPath = p.join(destDir.path, fileName);
+        
+        ToastService.showInfo(context, "Copiando archivo...");
+        
+        // Use copy so we don't delete the user's original downloaded file
+        await File(pickPath).copy(destPath);
+        
+        ToastService.showSuccess(context, "Archivo cargado con éxito");
+        
+        // Trigger a sync immediately
+        _sync();
+      } else {
+        // User canceled the picker
+        print("User canceled file picker");
+      }
+    } catch (e) {
+      print("Error picking file: $e");
+      if (mounted) {
+        ToastService.showError(context, "Error abriendo el archivo: $e");
       }
     }
   }

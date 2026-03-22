@@ -20,6 +20,7 @@ class DesktopHomeLayout extends StatefulWidget {
   final VoidCallback onRefresh;
   final VoidCallback onLogout;
   final VoidCallback onSync;
+  final VoidCallback onUpload;
   final Function(Recording) onToggleFavorite;
   final List<Collection> collections;
   final Function(String name) onCreateCollection;
@@ -41,6 +42,7 @@ class DesktopHomeLayout extends StatefulWidget {
     required this.onRefresh,
     required this.onLogout,
     required this.onSync,
+    required this.onUpload,
     required this.onToggleFavorite,
     required this.collections,
     required this.onCreateCollection,
@@ -237,6 +239,7 @@ class _DesktopHomeLayoutState extends State<DesktopHomeLayout> {
                             ));
                   },
                   onSync: widget.onSync,
+                  onUpload: widget.onUpload,
                   onLogout: widget.onLogout,
                   currentSection: widget.currentSection,
                   onSectionChanged: _onSectionChanged,

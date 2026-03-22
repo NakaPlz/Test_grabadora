@@ -16,6 +16,7 @@ class MobileHomeLayout extends StatefulWidget {
   final Function(Recording) onToggleFavorite;
   final Function(Recording) onDelete;
   final VoidCallback onSync;
+  final VoidCallback onUpload;
   final VoidCallback onLogout;
   final int currentNavIndex;
   final Function(int) onNavIndexChanged;
@@ -46,6 +47,7 @@ class MobileHomeLayout extends StatefulWidget {
     required this.onToggleFavorite,
     required this.onDelete,
     required this.onSync,
+    required this.onUpload,
     required this.onLogout,
     required this.currentNavIndex,
     required this.onNavIndexChanged,
@@ -160,9 +162,14 @@ class _MobileHomeLayoutState extends State<MobileHomeLayout> {
                                    ],
                                  ),
                                  
-                                 // ACTIONS: Sync + Trash + Avatar
+                                 // ACTIONS: Upload + Sync + Trash + Avatar
                                  Row(
                                      children: [
+                                         IconButton(
+                                             onPressed: widget.onUpload,
+                                             icon: const Icon(Icons.upload_file),
+                                             tooltip: "Subir Audio manual",
+                                         ),
                                          IconButton(
                                              onPressed: widget.onSync,
                                              icon: const Icon(Icons.sync),
