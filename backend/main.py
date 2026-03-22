@@ -27,6 +27,10 @@ from models import user, recording, collection
 # Create Tables
 Base.metadata.create_all(bind=engine)
 
+# Run Migrations (Check for new columns)
+from migrate_db import run_migration
+run_migration()
+
 app.include_router(auth.router)
 from routers import recordings, collections
 app.include_router(recordings.router, prefix="/recordings")
