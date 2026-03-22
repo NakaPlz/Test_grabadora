@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       animation: settingsService,
       builder: (context, child) {
         return MaterialApp(
-          title: 'AI Recorder Bridge',
+          title: 'Hilo',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,

@@ -146,14 +146,14 @@ class _MobileHomeLayoutState extends State<MobileHomeLayout> {
                                      Container(
                                        width: 32, height: 32,
                                        decoration: BoxDecoration(
-                                         color: const Color(0xFF7C3AED), // Force Bridge AI Purple
+                                         color: const Color(0xFF7C3AED), // Force Hilo Purple
                                          borderRadius: BorderRadius.circular(8),
                                        ),
                                        child: const Icon(Icons.graphic_eq, color: Colors.white, size: 20),
                                      ),
                                      const SizedBox(width: 12),
                                      Text(
-                                       "Bridge AI",
+                                       "Hilo",
                                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                          fontSize: 20,
                                          fontWeight: FontWeight.bold,

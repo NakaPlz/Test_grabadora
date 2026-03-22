@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Light Mode Colors
-  static const Color lightPrimary = Color(0xFF7C3AED); // Bridge AI Purple (Using same as dark for consistency or keep deep purple) - Let's use Bridge AI Purple: 7C3AED
-  static const Color lightBackground = Color(0xFFF8F9FC); // Bridge AI Light BG
+  static const Color lightPrimary = Color(0xFF7C3AED); // Hilo Purple
+  static const Color lightBackground = Color(0xFFF8F9FC); // Hilo Light BG
   static const Color lightSurface = Color(0xFFFFFFFF); // White
   static const Color lightTextPrimary = Color(0xFF0F172A); // Slate 900
   static const Color lightTextSecondary = Color(0xFF64748B); // Slate 500
   static const Color lightBorder = Color(0xFFE2E8F0); // Slate 200
 
   // Dark Mode Colors
-  static const Color darkPrimary = Color(0xFF7C3AED); // Bridge AI Purple
-  static const Color darkBackground = Color(0xFF0F111A); // Bridge AI Dark BG
+  static const Color darkPrimary = Color(0xFF7C3AED); // Hilo Purple
+  static const Color darkBackground = Color(0xFF0F111A); // Hilo Dark BG
   static const Color darkSurface = Color(0xFF1E293B); // Slate 800 (Lighter than BG)
-  static const Color darkSidebar = Color(0xFF1A1F35); // Bridge AI Sidebar Dark
+  static const Color darkSidebar = Color(0xFF1A1F35); // Hilo Sidebar Dark
   static const Color darkTextPrimary = Color(0xFFF8FAFC); // Slate 50
   static const Color darkTextSecondary = Color(0xFF94A3B8); // Slate 400
   static const Color darkBorder = Color(0xFF334155); // Slate 700

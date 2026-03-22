@@ -45,7 +45,7 @@ class AppSidebar extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  "Bridge AI",
+                  "Hilo",
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
