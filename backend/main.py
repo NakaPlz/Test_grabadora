@@ -47,6 +47,16 @@ async def sanity_check():
 async def health_check():
     return {"status": "ok"}
 
+@app.get("/env-debug")
+async def env_debug():
+    import os
+    return {
+        "SUPABASE_URL_EXISTS": "SUPABASE_URL" in os.environ,
+        "SUPABASE_KEY_EXISTS": "SUPABASE_KEY" in os.environ,
+        "URL_STARTS_WITH_HTTP": str(os.environ.get("SUPABASE_URL")).startswith("http"),
+        "KEYS_IN_ENV": list(os.environ.keys())
+    }
+
 @app.on_event("startup")
 async def startup_event():
     print("MAPPING ROUTES:")
