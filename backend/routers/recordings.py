@@ -90,12 +90,16 @@ async def permanent_delete_recording(
     if recording.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to delete this recording")
     
-    # Delete physical file if exists
-    if recording.remote_url and os.path.exists(recording.remote_url):
-        try:
-            os.remove(recording.remote_url)
-        except OSError:
-            pass 
+    # Delete physical file from Supabase or local paths
+    if recording.remote_url:
+        if recording.remote_url.startswith("http"):
+            from core.storage import delete_file_from_supabase
+            delete_file_from_supabase(recording.remote_url)
+        elif os.path.exists(recording.remote_url):
+            try:
+                os.remove(recording.remote_url)
+            except OSError:
+                pass 
             
     crud_recording.delete_recording(db, recording_id)
     return None
@@ -130,18 +134,18 @@ async def upload_audio_file(
     if recording.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    # Ensure uploads directory exists
-    os.makedirs("uploads", exist_ok=True)
+    from core.storage import upload_file_to_supabase
     
-    file_location = f"uploads/{recording_id}_{file.filename}"
-    with open(file_location, "wb+") as file_object:
-        file_object.write(file.file.read())
+    try:
+        public_url = upload_file_to_supabase(recording_id, file)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload to storage: {str(e)}")
     
-    # Update recording with file path/url
+    # Update recording with the public URL
     updated_recording = crud_recording.update_recording(
         db, 
         recording_id, 
-        schemas_recording.RecordingUpdate(remote_url=file_location, status=schemas_recording.RecordingStatus.uploaded)
+        schemas_recording.RecordingUpdate(remote_url=public_url, status=schemas_recording.RecordingStatus.uploaded)
     )
 
     return updated_recording

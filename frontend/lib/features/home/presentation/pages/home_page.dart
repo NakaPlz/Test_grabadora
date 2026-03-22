@@ -82,8 +82,10 @@ class _HomePageState extends State<HomePage> {
           String url = recording.remoteUrl ?? "";
           if (!url.startsWith("http")) {
             url = "${ApiConstants.baseUrl}/$url";
-            url = url.replaceAll('\\', '/');
           }
+          url = url.replaceAll('\\', '/');
+          url = Uri.encodeFull(url);
+          
           print("HomePage: Playing remote file: $url");
           urlSource = UrlSource(url);
         }

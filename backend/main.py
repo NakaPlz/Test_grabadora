@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="AI Recorder Bridge API")
+app = FastAPI(title="Hilo API")
 
 # Configure CORS
 app.add_middleware(
@@ -15,9 +15,8 @@ app.add_middleware(
 from fastapi.staticfiles import StaticFiles
 import os
 
-# Create uploads directory if not exists
-os.makedirs("uploads", exist_ok=True)
 # Mount uploads directory to /uploads path
+os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 from database import engine, Base

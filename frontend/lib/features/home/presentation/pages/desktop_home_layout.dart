@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../../../../domain/entities/recording.dart';
@@ -68,6 +69,7 @@ class _DesktopHomeLayoutState extends State<DesktopHomeLayout> {
   Duration _position = Duration.zero;
   double _volume = 1.0;
   double _speed = 1.0;
+  String? _lastPlayedRecordingId;
   Collection? _selectedCollection;
 
   @override
@@ -151,20 +153,45 @@ class _DesktopHomeLayoutState extends State<DesktopHomeLayout> {
     if (_isPlaying) {
       await _audioPlayer.pause();
     } else {
-      String url = _selectedRecording!.remoteUrl ?? "";
-      if (url.isEmpty) return;
-
-      // Handle localhost for emulator/desktop if needed
-      if (!url.startsWith("http")) {
-        // Assuming standard backend port
-        url = "${ApiConstants.baseUrl}/$url";
-        url = url.replaceAll('\\', '/');
-      }
-
       try {
+        // If it's the same recording and we already have a position, just resume
+        if (_lastPlayedRecordingId == _selectedRecording!.id && _position > Duration.zero) {
+           await _audioPlayer.resume();
+           return;
+        }
+
+        Source urlSource;
+        // 1. Try Local File
+        if (await File(_selectedRecording!.localPath).exists()) {
+          print("Desktop: Playing local file: ${_selectedRecording!.localPath}");
+          urlSource = DeviceFileSource(_selectedRecording!.localPath);
+        } else {
+          // 2. Fallback to Remote
+          String url = _selectedRecording!.remoteUrl ?? "";
+          if (url.isEmpty) {
+             print("Desktop: No remoteUrl available for ${_selectedRecording!.id}");
+             return;
+          }
+
+          if (!url.startsWith("http")) {
+            url = "${ApiConstants.baseUrl}/$url";
+          }
+          
+          // Ensure valid URL encoding (especially for spaces in filenames)
+          url = url.replaceAll('\\', '/');
+          url = Uri.encodeFull(url);
+          
+          print("Desktop: Playing remote file: $url");
+          urlSource = UrlSource(url);
+        }
+
         await _audioPlayer.setVolume(_volume);
         await _audioPlayer.setPlaybackRate(_speed);
-        await _audioPlayer.play(UrlSource(url));
+        await _audioPlayer.play(urlSource);
+        
+        setState(() {
+          _lastPlayedRecordingId = _selectedRecording!.id;
+        });
       } catch (e) {
         if (mounted) {
           ToastService.showError(context, "Error reproduciendo audio: $e");
