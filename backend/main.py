@@ -1,5 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
+
+# Force load all environment variables from .env file immediately
+load_dotenv()
 
 app = FastAPI(title="Hilo API")
 
