@@ -68,6 +68,7 @@ async def test_dns():
     import urllib.request
     import os
     import reprlib
+    import httpx
 
     url_env = reprlib.repr(os.environ.get("SUPABASE_URL", ""))
     url_stripped = reprlib.repr(os.environ.get("SUPABASE_URL", "").strip())
@@ -86,12 +87,26 @@ async def test_dns():
         ip = str(e)
         dns_success = False
 
+    httpx_success = False
+    httpx_error = ""
+    try:
+        # Check if httpx can connect to the storage API
+        res = httpx.get(f"{raw}/storage/v1/bucket", timeout=5.0)
+        httpx_success = True
+        httpx_error = str(res.status_code)
+    except Exception as e:
+        httpx_success = False
+        import traceback
+        httpx_error = traceback.format_exc()
+
     return {
         "env_raw": url_env,
         "env_stripped": url_stripped,
         "domain_parsed": reprlib.repr(domain),
         "resolved_ip": ip,
-        "dns_success": dns_success
+        "dns_success": dns_success,
+        "httpx_success": httpx_success,
+        "httpx_error": httpx_error
     }
 
 @app.on_event("startup")
