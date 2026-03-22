@@ -4,6 +4,16 @@ from fastapi import UploadFile
 import uuid
 
 # Initialize Supabase Client
+import socket
+_original_getaddrinfo = socket.getaddrinfo
+
+def _ipv4_only_getaddrinfo(host, port, family=0, *args, **kwargs):
+    if family == 0:  # AF_UNSPEC
+        family = socket.AF_INET
+    return _original_getaddrinfo(host, port, family, *args, **kwargs)
+
+socket.getaddrinfo = _ipv4_only_getaddrinfo
+
 supabase_url = os.environ.get("SUPABASE_URL", "").strip()
 supabase_key = os.environ.get("SUPABASE_KEY", "").strip()
 
