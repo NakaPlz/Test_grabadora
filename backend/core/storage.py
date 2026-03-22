@@ -1,76 +1,67 @@
 import os
-from supabase import create_client, Client
-from fastapi import UploadFile
 import uuid
+import urllib.request
+import urllib.parse
+import urllib.error
 
-# Initialize Supabase Client
-import socket
-_original_getaddrinfo = socket.getaddrinfo
-
-def _ipv4_only_getaddrinfo(host, port, family=0, *args, **kwargs):
-    if family == 0:  # AF_UNSPEC
-        family = socket.AF_INET
-    return _original_getaddrinfo(host, port, family, *args, **kwargs)
-
-socket.getaddrinfo = _ipv4_only_getaddrinfo
-
+# Initialize Supabase URL and Key
 supabase_url = os.environ.get("SUPABASE_URL", "").strip()
 supabase_key = os.environ.get("SUPABASE_KEY", "").strip()
 
-if supabase_url and supabase_key:
-    supabase: Client = create_client(supabase_url, supabase_key)
-else:
-    # Handle gracefully if missing, though it shouldn't happen in prod now
-    print("WARNING: SUPABASE_URL or SUPABASE_KEY is missing. Storage will fail.")
-    supabase = None
-
 BUCKET_NAME = "recordings"
 
-def upload_file_to_supabase(recording_id: str, file: UploadFile) -> str:
+def upload_file_to_supabase(recording_id: str, file) -> str:
     """
-    Uploads a file to Supabase Storage and returns the public URL.
+    Uploads a file to Supabase Storage using native urllib (bypassing httpx DNS bugs)
+    and returns its public URL.
     """
-    if not supabase:
-        raise ValueError("Supabase client is not initialized.")
+    if not supabase_url or not supabase_key:
+        raise ValueError("Supabase URL or KEY is missing.")
 
-    # Create a unique filename to prevent collisions, but keep the original extension
     ext = file.filename.split('.')[-1] if '.' in file.filename else 'wav'
     file_name = f"{recording_id}_{uuid.uuid4().hex}.{ext}"
-    
-    # Read file content
     file_bytes = file.file.read()
     
-    # Upload to Supabase Storage
-    res = supabase.storage.from_(BUCKET_NAME).upload(
-        file=file_bytes,
-        path=file_name,
-        file_options={"content-type": "audio/wav"}
-    )
+    encoded_file_name = urllib.parse.quote(file_name)
+    upload_url = f"{supabase_url}/storage/v1/object/{BUCKET_NAME}/{encoded_file_name}"
     
-    # Get the public URL for the file so the frontend can play it directly
-    public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(file_name)
+    req = urllib.request.Request(upload_url, data=file_bytes, method="POST")
+    req.add_header("Authorization", f"Bearer {supabase_key}")
+    req.add_header("Content-Type", "audio/wav")
     
-    # The return value of get_public_url is sometimes wrapped in an object or just string
-    # Based on supabase-py v2.3+, get_public_url returns a string directly
+    try:
+        with urllib.request.urlopen(req) as response:
+            if response.status >= 400:
+                raise Exception(f"Upload failed: {response.read()}")
+    except urllib.error.HTTPError as e:
+        raise Exception(f"Upload HTTPError: {e.code} - {e.read().decode('utf-8')}")
+    except urllib.error.URLError as e:
+        raise Exception(f"Upload URLError: {e.reason}")
+    
+    public_url = f"{supabase_url}/storage/v1/object/public/{BUCKET_NAME}/{encoded_file_name}"
     return public_url
 
 def delete_file_from_supabase(remote_url: str) -> bool:
     """
-    Deletes a file from Supabase Storage given its public URL.
+    Deletes a file from Supabase Storage given its public URL using native urllib.
     """
-    if not supabase or not remote_url:
+    if not supabase_url or not supabase_key or not remote_url:
         return False
         
     try:
-        # The remote_url looks like: https://[project_ref].supabase.co/storage/v1/object/public/recordings/[filename]
-        # We need to extract just the [filename] part
         if BUCKET_NAME in remote_url:
             parts = remote_url.split(f"/{BUCKET_NAME}/")
             if len(parts) > 1:
-                filename = parts[1]
-                supabase.storage.from_(BUCKET_NAME).remove([filename])
-                return True
+                filename = urllib.parse.quote(parts[1])
+                delete_url = f"{supabase_url}/storage/v1/object/{BUCKET_NAME}/{filename}"
+                
+                req = urllib.request.Request(delete_url, method="DELETE")
+                req.add_header("Authorization", f"Bearer {supabase_key}")
+                
+                with urllib.request.urlopen(req) as response:
+                    return response.status < 400
     except Exception as e:
         print(f"Failed to delete file from Supabase storage: {e}")
         
     return False
+
