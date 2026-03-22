@@ -182,8 +182,8 @@ async def transcribe_recording(
 def process_transcription(file_path: str, rec_id: str):
     print(f"[BACKGROUND] Starting transcription for {file_path} (ID: {rec_id})")
     
-    # Verify file exists
-    if not os.path.exists(file_path):
+    # Verify file exists if it's a local path
+    if not file_path.startswith("http") and not os.path.exists(file_path):
         print(f"[BACKGROUND] ERROR: File not found at {file_path}")
         return
 
