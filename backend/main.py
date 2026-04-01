@@ -8,10 +8,17 @@ load_dotenv()
 
 app = FastAPI(title="Hilo API")
 
-# Configure CORS
+# Configure CORS with strict security bounds
+allowed_origins_env = os.environ.get("ALLOWED_ORIGINS", "")
+if allowed_origins_env:
+    allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+else:
+    # Restrict to strictly known clients or local flutter builds instead of asterisk
+    allowed_origins = ["http://localhost", "https://hilo-app.com"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development only
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

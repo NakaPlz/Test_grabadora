@@ -113,18 +113,33 @@ class MobileRecordingCard extends StatelessWidget {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: statusBg,
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Text(
-                                statusText,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: statusColor,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (recording.status.name == 'pending' || recording.status.name == 'transcribing')
+                                    Container(
+                                      width: 10,
+                                      height: 10,
+                                      margin: const EdgeInsets.only(right: 6),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: statusColor,
+                                      ),
+                                    ),
+                                  Text(
+                                    statusText,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: statusColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

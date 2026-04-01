@@ -173,9 +173,31 @@ class RecordingListPanel extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                             Text(
-                               "$dateStr • ${recording.status.toString().split('.').last.toUpperCase()}",
-                               style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 11),
+                             Row(
+                               children: [
+                                 if (recording.status.name == 'pending' || recording.status.name == 'transcribing')
+                                   Container(
+                                     width: 12,
+                                     height: 12,
+                                     margin: const EdgeInsets.only(right: 8),
+                                     child: CircularProgressIndicator(
+                                       strokeWidth: 2,
+                                       color: Theme.of(context).colorScheme.primary,
+                                     ),
+                                   ),
+                                 Text(
+                                   "$dateStr • ${recording.status.name == 'transcribing' ? 'IA TRANSCRIBIENDO...' : recording.status.name == 'pending' ? 'SINCRONIZANDO...' : recording.status.name.toUpperCase()}",
+                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                     fontSize: 11,
+                                     color: (recording.status.name == 'pending' || recording.status.name == 'transcribing') 
+                                        ? Theme.of(context).colorScheme.primary 
+                                        : null,
+                                     fontWeight: (recording.status.name == 'pending' || recording.status.name == 'transcribing') 
+                                        ? FontWeight.bold 
+                                        : null,
+                                   ),
+                                 ),
+                               ],
                              ),
                              if (currentSection != SidebarSection.trash)
                                const Icon(Icons.chevron_right, size: 16, color: Colors.grey)

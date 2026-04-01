@@ -11,6 +11,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
     verification_token = Column(String, nullable=True)
+    plan_type = Column(String, default="free")
 
     recordings = relationship("models.recording.Recording", back_populates="owner")
     collections = relationship("models.collection.Collection", back_populates="owner")

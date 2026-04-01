@@ -34,7 +34,19 @@ def upload_file_to_supabase(recording_id: str, file) -> str:
         raise ValueError(f"Invalid file extension: {ext}. Only audio files are allowed.")
         
     file_name = f"{recording_id}_{uuid.uuid4().hex}.{ext}"
-    file_bytes = file.file.read()
+    
+    # Ram Protection: Read in chunks and limit to 50MB to prevent DoS OOM
+    file_bytes = b""
+    chunk_size = 1048576  # 1MB
+    max_size = 52428800   # 50MB
+    while True:
+        chunk = file.file.read(chunk_size)
+        if not chunk:
+            break
+        file_bytes += chunk
+        if len(file_bytes) > max_size:
+            raise ValueError("Archivo demasiado grande. Límite de 50MB excedido por seguridad (DoS Protection).")
+
     
     encoded_file_name = urllib.parse.quote(file_name)
     upload_url = f"{supabase_url}/storage/v1/object/{BUCKET_NAME}/{encoded_file_name}"

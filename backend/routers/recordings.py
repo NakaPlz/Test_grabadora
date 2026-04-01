@@ -134,8 +134,12 @@ async def upload_audio_file(
     if recording.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    from core.storage import upload_file_to_supabase
+    from core.storage import upload_file_to_supabase, delete_file_from_supabase
     
+    # Storage Resource Protection: Delete the old file from cloud to prevent orphaned files exhaustion
+    if recording.remote_url and recording.remote_url.startswith("http"):
+        delete_file_from_supabase(recording.remote_url)
+        
     try:
         public_url = upload_file_to_supabase(recording_id, file)
     except Exception as e:
