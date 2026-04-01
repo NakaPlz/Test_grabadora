@@ -51,12 +51,6 @@ class ProcessingStatusCard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             _buildStepRow(context, "Transcripción Audio a Texto", isCompleted || isProcessing, isCompleted),
-            const SizedBox(height: 12),
-            _buildStepRow(context, "Generación de Resumen", isCompleted || isProcessing, isCompleted),
-            const SizedBox(height: 12),
-            _buildStepRow(context, "Extracción de Tareas", isCompleted || isProcessing, isCompleted),
-            const SizedBox(height: 12),
-            _buildStepRow(context, "Creación de Mapa Mental", isCompleted || isProcessing, isCompleted),
             
             const SizedBox(height: 24),
             

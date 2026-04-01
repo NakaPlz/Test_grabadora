@@ -143,11 +143,10 @@ async def upload_audio_file(
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to upload to storage: {str(e)}")
     
-    # Update recording with the public URL
     updated_recording = crud_recording.update_recording(
         db, 
         recording_id, 
-        schemas_recording.RecordingUpdate(remote_url=public_url, status=schemas_recording.RecordingStatus.uploaded)
+        {"remote_url": public_url, "status": schemas_recording.RecordingStatus.uploaded}
     )
 
     return updated_recording

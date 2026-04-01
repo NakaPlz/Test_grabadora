@@ -5,10 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import 'signup_page.dart';
-
-import 'package:flutter/foundation.dart';
 import '../../../../core/services/settings_service.dart';
-import '../../../../core/constants/api_constants.dart';
 import '../../../../core/services/toast_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -169,12 +166,6 @@ class _LoginPageState extends State<LoginPage> {
                     child: const Text('¿No tienes cuenta? Regístrate'),
                   ),
                   const SizedBox(height: 24),
-                  SelectableText(
-                    "Debug Info:\nMode: ${kReleaseMode ? 'Release' : 'Debug'}\nAPI: ${ApiConstants.baseUrl}",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.grey.withOpacity(0.5), fontSize: 10),
-                  ),
                 ],
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
 import '../../../../features/home/presentation/pages/home_page.dart';
 import 'login_page.dart';
 
@@ -31,16 +32,35 @@ class _SplashPageState extends State<SplashPage> {
     
     if (!mounted) return;
 
-    if (token != null) {
-        // Token exists, go to Home
+    if (token != null && _isTokenValid(token)) {
+        // Token exists and is valid, go to Home
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => HomePage(settingsService: widget.settingsService)),
         );
     } else {
-        // No token, go to Login
+        // Token expired or does not exist, clear it just in case and go to Login
+        await _storage.delete(key: 'auth_token');
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => LoginPage(settingsService: widget.settingsService)),
         );
+    }
+  }
+
+  bool _isTokenValid(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return false;
+
+      final payloadString = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final payload = json.decode(payloadString);
+
+      if (payload['exp'] == null) return false;
+      final expInt = int.tryParse(payload['exp'].toString()) ?? 0;
+
+      final expiryDate = DateTime.fromMillisecondsSinceEpoch(expInt * 1000);
+      return DateTime.now().isBefore(expiryDate);
+    } catch (e) {
+      return false;
     }
   }
 
@@ -52,6 +72,8 @@ class _SplashPageState extends State<SplashPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.mic, size: 80, color: Colors.deepPurple),
+            SizedBox(height: 16),
+            Text("HILO", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2.0)),
             SizedBox(height: 24),
             CircularProgressIndicator(),
           ],

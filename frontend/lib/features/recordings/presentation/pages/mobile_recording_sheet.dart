@@ -4,6 +4,7 @@ import '../../domain/services/recorder_service.dart';
 import '../../data/services/recorder_service_impl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import '../../../../core/services/toast_service.dart';
@@ -93,6 +94,10 @@ class _MobileRecordingSheetState extends State<MobileRecordingSheet>
 
     await _recorderService.start(path);
     _startTimer();
+    // Keep screen awake while recording
+    if (!Platform.isWindows) {
+      WakelockPlus.enable();
+    }
   }
 
   void _startTimer() {
@@ -108,6 +113,9 @@ class _MobileRecordingSheetState extends State<MobileRecordingSheet>
 
   Future<void> _stopRecording() async {
     _stopTimer();
+    if (!Platform.isWindows) {
+      WakelockPlus.disable();
+    }
     final path = await _recorderService.stop();
     if (path != null && mounted) {
       widget.onRecordingFinished(path);
@@ -119,9 +127,11 @@ class _MobileRecordingSheetState extends State<MobileRecordingSheet>
     if (_state == RecorderState.recording) {
       _stopTimer();
       await _recorderService.pause();
+      if (!Platform.isWindows) WakelockPlus.disable();
     } else if (_state == RecorderState.paused) {
       _startTimer();
       await _recorderService.resume();
+      if (!Platform.isWindows) WakelockPlus.enable();
     }
   }
 
@@ -130,11 +140,18 @@ class _MobileRecordingSheetState extends State<MobileRecordingSheet>
     _timer?.cancel();
     _recorderService.dispose();
     _pulseController.dispose();
+    if (!Platform.isWindows) {
+      WakelockPlus.disable();
+    }
     super.dispose();
   }
 
   String _formatDuration(Duration d) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
+    int hours = d.inHours;
+    if (hours > 0) {
+      return "${twoDigits(hours)}:${twoDigits(d.inMinutes.remainder(60))}:${twoDigits(d.inSeconds.remainder(60))}";
+    }
     return "${twoDigits(d.inMinutes.remainder(60))}:${twoDigits(d.inSeconds.remainder(60))}";
   }
 

@@ -3,11 +3,18 @@ from typing import Any, Union
 from jose import jwt
 from passlib.context import CryptContext
 
+import os
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "LLAVE_SECRETA_NUEVA_PARA_INVALIDAR_SESIONES_ANTERIORES"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+import secrets
+SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+ALGORITHM = os.environ.get("ALGORITHM", "HS256")
+# 4320 mins = 3 days, standard for mobile apps
+try:
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "4320"))
+except ValueError:
+    ACCESS_TOKEN_EXPIRE_MINUTES = 4320
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)

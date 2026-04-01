@@ -182,8 +182,9 @@ class MobileRecordingCard extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    // Basic formatting. Use intl package in real app
-    return "${date.day}/${date.month}/${date.year} • ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+    final localDt = date.toLocal();
+    final months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    return "${localDt.day} ${months[localDt.month - 1]} ${localDt.year} • ${localDt.hour.toString().padLeft(2, '0')}:${localDt.minute.toString().padLeft(2, '0')}";
   }
 }
 

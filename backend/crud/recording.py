@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from models.recording import Recording, RecordingStatus
 from schemas.recording import RecordingCreate, RecordingUpdate
+from typing import Union
 import uuid
 
 def get_recording(db: Session, recording_id: str):
@@ -21,12 +22,12 @@ def create_user_recording(db: Session, recording: RecordingCreate, user_id: int)
     db.refresh(db_recording)
     return db_recording
 
-def update_recording(db: Session, recording_id: str, recording_update: RecordingUpdate):
+def update_recording(db: Session, recording_id: str, recording_update: Union[RecordingUpdate, dict]):
     db_recording = get_recording(db, recording_id)
     if not db_recording:
         return None
     
-    update_data = recording_update.model_dump(exclude_unset=True)
+    update_data = recording_update.model_dump(exclude_unset=True) if not isinstance(recording_update, dict) else recording_update
     for key, value in update_data.items():
         setattr(db_recording, key, value)
     

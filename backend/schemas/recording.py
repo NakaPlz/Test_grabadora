@@ -13,7 +13,6 @@ class RecordingCreate(RecordingBase):
 
 class RecordingUpdate(BaseModel):
     title: Optional[str] = None
-    remote_url: Optional[str] = None
     status: Optional[RecordingStatus] = None
     transcript: Optional[str] = None
     summary: Optional[str] = None

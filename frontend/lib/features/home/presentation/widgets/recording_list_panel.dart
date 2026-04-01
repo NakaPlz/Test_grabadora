@@ -106,8 +106,10 @@ class RecordingListPanel extends StatelessWidget {
                       ? (isDark ? Colors.white.withOpacity(0.02) : Colors.black.withOpacity(0.02))
                       : Colors.transparent);
               
-              // Date mock
-              final dateStr = "Oct 25, 2023"; // TODO: Use real date
+              // Real DateTime Localization
+              final localDt = recording.createdAt.toLocal();
+              final months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+              final dateStr = "${localDt.day} ${months[localDt.month - 1]} ${localDt.year} • ${localDt.hour.toString().padLeft(2, '0')}:${localDt.minute.toString().padLeft(2, '0')}";
               
               return Material(
                 color: rowColor,

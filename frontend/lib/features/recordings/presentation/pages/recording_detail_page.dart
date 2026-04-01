@@ -242,9 +242,9 @@ class _RecordingDetailPageState extends State<RecordingDetailPage> {
       // Refresh state to confirm 'transcribing' status
       await _refreshRecording();
 
-      ToastService.showInfo(context, "Transcripción iniciada...");
+      ToastService.showInfo(context, "Solicitud enviada...");
     } catch (e) {
-      ToastService.showError(context, "Error iniciando transcripción: $e");
+      ToastService.showError(context, "Error en solicitud: $e");
     }
   }
 

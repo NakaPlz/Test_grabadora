@@ -26,7 +26,13 @@ def upload_file_to_supabase(recording_id: str, file) -> str:
     if not supabase_url or not supabase_key:
         raise ValueError("Supabase URL or KEY is missing.")
 
-    ext = file.filename.split('.')[-1] if '.' in file.filename else 'wav'
+    ext = file.filename.split('.')[-1].lower() if '.' in file.filename else 'wav'
+    
+    # Security: Only allow audio extensions
+    allowed_extensions = {'wav', 'mp3', 'm4a', 'flac', 'aac', 'ogg'}
+    if ext not in allowed_extensions:
+        raise ValueError(f"Invalid file extension: {ext}. Only audio files are allowed.")
+        
     file_name = f"{recording_id}_{uuid.uuid4().hex}.{ext}"
     file_bytes = file.file.read()
     

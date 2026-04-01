@@ -77,9 +77,15 @@ class _DesktopHomeLayoutState extends State<DesktopHomeLayout> {
     super.didUpdateWidget(oldWidget);
     // If selected recording is no longer in the list (e.g. deleted), clear selection
     if (_selectedRecording != null) {
-      final found =
-          widget.recordings.any((r) => r.id == _selectedRecording!.id);
-      if (!found) {
+      try {
+        final newRef = widget.recordings.firstWhere((r) => r.id == _selectedRecording!.id);
+        if (_selectedRecording != newRef) {
+          setState(() {
+            _selectedRecording = newRef;
+          });
+        }
+      } catch (e) {
+        // Not found in new list
         setState(() {
           _selectedRecording = null;
         });
